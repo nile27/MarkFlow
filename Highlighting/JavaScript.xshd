@@ -1,0 +1,69 @@
+﻿<?xml version="1.0"?>
+<SyntaxDefinition name="JavaScript-Custom" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+	<Color name="Comment" foreground="#008000" fontStyle="italic"/>
+	<Color name="String" foreground="#A31515"/>
+	<Color name="Keyword" foreground="#0000FF" fontWeight="bold"/>
+	<Color name="Number" foreground="#098658"/>
+	<Color name="Operator" foreground="#000000"/>
+	<Color name="ClassName" foreground="#267F99"/>
+	<Color name="Function" foreground="#795E26"/>
+
+	<RuleSet>
+		<!-- 한줄 주석 -->
+		<Span color="Comment" begin="//" end="\n"/>
+		<!-- 블록 주석 -->
+		<Span color="Comment" multiline="true" begin="/\*" end="\*/"/>
+		<!-- 문자열 -->
+		<Span color="String" begin="&quot;" end="&quot;" />
+		<Span color="String" begin="'" end="'"/>
+		<Span color="String" begin="`" end="`"/>
+
+		<!-- 숫자 -->
+		<Rule color="Number">\b\d+(\.\d+)?\b</Rule>
+
+		<!-- 키워드 -->
+		<Keywords color="Keyword">
+			<Word>var</Word>
+			<Word>let</Word>
+			<Word>const</Word>
+			<Word>function</Word>
+			<Word>return</Word>
+			<Word>if</Word>
+			<Word>else</Word>
+			<Word>for</Word>
+			<Word>while</Word>
+			<Word>do</Word>
+			<Word>switch</Word>
+			<Word>case</Word>
+			<Word>break</Word>
+			<Word>continue</Word>
+			<Word>new</Word>
+			<Word>this</Word>
+			<Word>class</Word>
+			<Word>extends</Word>
+			<Word>import</Word>
+			<Word>export</Word>
+			<Word>default</Word>
+			<Word>from</Word>
+			<Word>async</Word>
+			<Word>await</Word>
+			<Word>try</Word>
+			<Word>catch</Word>
+			<Word>finally</Word>
+			<Word>throw</Word>
+			<Word>typeof</Word>
+			<Word>instanceof</Word>
+			<Word>null</Word>
+			<Word>undefined</Word>
+			<Word>true</Word>
+			<Word>false</Word>
+			<Word>of</Word>
+			<Word>in</Word>
+			<Word>delete</Word>
+			<Word>void</Word>
+		</Keywords>
+
+		<!-- 함수명 -->
+		<Rule color="Function">\b\w+(?=\s*\()</Rule>
+	</RuleSet>
+</SyntaxDefinition>

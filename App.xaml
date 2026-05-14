@@ -1,0 +1,142 @@
+<Application x:Class="MarkFlow.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:MarkFlow">
+
+    <Application.Resources>
+
+        <!-- ============ 색상 정의 (Notion 디자인) ============ -->
+
+        <!-- Primary Colors -->
+        <Color x:Key="NotionBlue">#171717</Color>
+        <Color x:Key="PureWhite">#FFFFFF</Color>
+
+        <!-- Warm Neutral Scale -->
+        <Color x:Key="WarmWhite">#f6f5f4</Color>
+        <Color x:Key="WarmDark">#31302e</Color>
+        <Color x:Key="WarmGray500">#615d59</Color>
+        <Color x:Key="WarmGray300">#a39e98</Color>
+
+        <!-- SolidColorBrush -->
+        <SolidColorBrush x:Key="NotionBlueBrush" Color="#171717"/>
+        <SolidColorBrush x:Key="PureWhiteBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="WarmWhiteBrush" Color="#f6f5f4"/>
+        <SolidColorBrush x:Key="WarmDarkBrush" Color="#31302e"/>
+        <SolidColorBrush x:Key="WarmGray500Brush" Color="#615d59"/>
+        <SolidColorBrush x:Key="TextForeground" Color="#F2000000"/>
+
+        <!-- ============ 폰트 정의 ============ -->
+        <FontFamily x:Key="NotionFont">Segoe UI, -apple-system, system-ui, Helvetica</FontFamily>
+
+        <!-- ============ 스타일 정의 ============ -->
+
+        <!-- 주 제목 스타일 (Display) -->
+        <Style x:Key="DisplayHeading" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource NotionFont}"/>
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#0f0f0f"/>
+            <Setter Property="LineHeight" Value="40"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+
+        <!-- 섹션 제목 -->
+        <Style x:Key="SectionHeading" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource NotionFont}"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#0f0f0f"/>
+            <Setter Property="Margin" Value="0,12,0,8"/>
+        </Style>
+
+        <!-- 바디 텍스트 -->
+        <Style x:Key="BodyText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource NotionFont}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="#0f0f0f"/>
+            <Setter Property="LineHeight" Value="20"/>
+        </Style>
+
+        <!-- 작은 텍스트 -->
+        <Style x:Key="SmallText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource NotionFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#615d59"/>
+        </Style>
+
+        <!-- ============ 버튼 스타일 ============ -->
+
+        <!-- Primary Button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#171717"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontFamily" Value="{StaticResource NotionFont}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#171717"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border 
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                            <ContentPresenter 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#333333"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#000000"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Secondary Button -->
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#0f0f0f"/>
+            <Setter Property="FontFamily" Value="{StaticResource NotionFont}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#1A000000"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border 
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                            <ContentPresenter 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter  Property="Background" Value="#f6f5f4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Application.Resources>
+</Application>
