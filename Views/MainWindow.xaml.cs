@@ -1,9 +1,13 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using MarkFlow.ViewModels;
+using Color = System.Windows.Media.Color;
+using MessageBox = System.Windows.MessageBox;
 
-namespace MarkFlow
+namespace MarkFlow.Views
 {
     public partial class MainWindow : Window
     {
@@ -12,68 +16,118 @@ namespace MarkFlow
         public MainWindow()
         {
             InitializeComponent();
-            _viewModel = new EditorViewModel();
-            DataContext = _viewModel;
 
-            MarkdownEditor.SyntaxHighlighting =
-                ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance
-                .GetDefinition("MarkDown");
+            if (DataContext is not EditorViewModel)
+                DataContext = new EditorViewModel();
 
-            // 에디터 → ViewModel
-            MarkdownEditor.TextChanged += (s, e) =>
+            _viewModel = (EditorViewModel)DataContext;
+
+            EditorView.Initialize();
+
+            EditorView.TextChanged += text =>
             {
-                if (_viewModel.MarkdownContent != MarkdownEditor.Text)
-                    _viewModel.MarkdownContent = MarkdownEditor.Text;
+                _viewModel.MarkdownContent = text;
             };
 
-            // ViewModel → 미리보기 + 에디터
             _viewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(_viewModel.PreviewDocument))
-                    PreviewViewer.Document = _viewModel.PreviewDocument;
-
+                    EditorView.Preview = _viewModel.PreviewDocument;
                 if (e.PropertyName == nameof(_viewModel.MarkdownContent))
-                {
-                    if (MarkdownEditor.Text != _viewModel.MarkdownContent)
-                        MarkdownEditor.Text = _viewModel.MarkdownContent;
-                }
+                    EditorView.EditorText = _viewModel.MarkdownContent;
+                if (e.PropertyName == nameof(_viewModel.Title))
+                    TitleText.Text = _viewModel.Title;
             };
 
-            MarkdownEditor.Text = _viewModel.MarkdownContent;
-            PreviewViewer.Document = _viewModel.PreviewDocument;
+            MergeView.OnFileMerged += RefreshFileList;
+            BrainstormView.OnNodeCreated += RefreshFileList;
         }
 
-        // 폴더 열기
+        private void SetTab(string tab)
+        {
+            if (tab != "markdown" && string.IsNullOrEmpty(_viewModel.CurrentFolderPath))
+            {
+                MessageBox.Show("먼저 폴더를 선택해주세요.", "MarkFlow");
+                return;
+            }
+            EditorView.Visibility = tab == "markdown" ? Visibility.Visible : Visibility.Collapsed;
+            MergeView.Visibility = tab == "merge" ? Visibility.Visible : Visibility.Collapsed;
+            BrainstormView.Visibility = tab == "brainstorm" ? Visibility.Visible : Visibility.Collapsed;
+
+            Sidebar.Visibility = tab == "markdown" ? Visibility.Visible : Visibility.Collapsed;
+            SidebarSplitter.Visibility = tab == "markdown" ? Visibility.Visible : Visibility.Collapsed;
+            SidebarColumn.Width = tab == "markdown" ? new GridLength(240, GridUnitType.Pixel) : new GridLength(0);
+            SplitterColumn.Width = tab == "markdown" ? new GridLength(5) : new GridLength(0);
+
+            EditorButtons.Visibility = tab == "markdown" ? Visibility.Visible : Visibility.Collapsed;
+            TitleText.Visibility = tab == "markdown" ? Visibility.Visible : Visibility.Collapsed;
+
+            TabMarkdown.Background = tab == "markdown"
+                ? new SolidColorBrush(Color.FromRgb(23, 23, 23)) : System.Windows.Media.Brushes.Transparent;
+            TabMarkdown.Foreground = tab == "markdown"
+                ? System.Windows.Media.Brushes.White : new SolidColorBrush(Color.FromRgb(97, 93, 89));
+
+            TabMerge.Background = tab == "merge"
+                ? new SolidColorBrush(Color.FromRgb(23, 23, 23)) : System.Windows.Media.Brushes.Transparent;
+            TabMerge.Foreground = tab == "merge"
+                ? System.Windows.Media.Brushes.White : new SolidColorBrush(Color.FromRgb(97, 93, 89));
+
+            TabBrainstorm.Background = tab == "brainstorm"
+                ? new SolidColorBrush(Color.FromRgb(23, 23, 23)) : System.Windows.Media.Brushes.Transparent;
+            TabBrainstorm.Foreground = tab == "brainstorm"
+                ? System.Windows.Media.Brushes.White : new SolidColorBrush(Color.FromRgb(97, 93, 89));
+
+            if (!string.IsNullOrEmpty(_viewModel.CurrentFolderPath))
+            {
+                if (tab == "merge") MergeView.LoadFolder(_viewModel.CurrentFolderPath);
+                if (tab == "brainstorm") BrainstormView.LoadFolder(_viewModel.CurrentFolderPath);
+            }
+        }
+
+        private void TabMarkdown_Click(object sender, RoutedEventArgs e) => SetTab("markdown");
+        private void TabMerge_Click(object sender, RoutedEventArgs e) => SetTab("merge");
+        private void TabBrainstorm_Click(object sender, RoutedEventArgs e) => SetTab("brainstorm");
+
         private void OpenFolderButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var folderPath = dialog.SelectedPath;
-                _viewModel.CurrentFolderPath = folderPath;
-                FolderNameText.Text = Path.GetFileName(folderPath);
+                _viewModel.CurrentFolderPath = dialog.SelectedPath;
+                FolderNameText.Text = System.IO.Path.GetFileName(dialog.SelectedPath);
 
-                var files = Directory.GetFiles(folderPath, "*.md")
-                    .Select(f => new FileInfo(f))
-                    .ToList();
+                _viewModel.CurrentFilePath = null;
+                _viewModel.Title = "새 문서";
+                _viewModel.MarkdownContent = "";
+                EditorView.EditorText = "";
+                TitleText.Text = "새 문서";
 
-                FileListBox.ItemsSource = files;
+                MergeView.LoadFolder(dialog.SelectedPath);
+
+                RefreshFileList();
             }
         }
 
-        // 파일 클릭
+        private void RefreshFileList()
+        {
+            if (string.IsNullOrEmpty(_viewModel.CurrentFolderPath)) return;
+            var files = Directory.GetFiles(_viewModel.CurrentFolderPath, "*.md")
+                .Select(f => new System.IO.FileInfo(f)).ToList();
+            FileListBox.ItemsSource = files;
+        }
+
         private void FileListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (FileListBox.SelectedItem is FileInfo file)
+            if (FileListBox.SelectedItem is System.IO.FileInfo file)
             {
                 _viewModel.CurrentFilePath = file.FullName;
                 _viewModel.MarkdownContent = File.ReadAllText(file.FullName);
-                _viewModel.Title = Path.GetFileNameWithoutExtension(file.FullName);
-                MarkdownEditor.Text = _viewModel.MarkdownContent;
+                _viewModel.Title = file.Name;
+                EditorView.EditorText = _viewModel.MarkdownContent;
+                TitleText.Text = file.Name;
             }
         }
 
-        // 열기
         private void OpenButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
@@ -84,26 +138,47 @@ namespace MarkFlow
             {
                 _viewModel.CurrentFilePath = dialog.FileName;
                 _viewModel.MarkdownContent = File.ReadAllText(dialog.FileName);
-                _viewModel.Title = Path.GetFileNameWithoutExtension(dialog.FileName);
-                MarkdownEditor.Text = _viewModel.MarkdownContent;
+                _viewModel.Title = System.IO.Path.GetFileNameWithoutExtension(dialog.FileName);
+                EditorView.EditorText = _viewModel.MarkdownContent;
             }
         }
 
-        // 저장
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            _viewModel.MarkdownContent = MarkdownEditor.Text;
+            _viewModel.MarkdownContent = EditorView.EditorText;
             _viewModel.Save();
         }
 
-        // 새 문서
         private void NewDocumentButton_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.CurrentFilePath = null;
             _viewModel.Title = "새 문서";
             _viewModel.MarkdownContent = "";
-            MarkdownEditor.Text = "";
+            EditorView.EditorText = "";
+            TitleText.Text = "새 문서";
         }
 
+        private void DeleteFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (FileListBox.SelectedItem is System.IO.FileInfo file)
+            {
+                var result = MessageBox.Show($"{file.Name}을(를) 삭제하시겠습니까?",
+                    "파일 삭제", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    File.Delete(file.FullName);
+                    if (_viewModel.CurrentFilePath == file.FullName)
+                    {
+                        _viewModel.CurrentFilePath = null;
+                        _viewModel.Title = "새 문서";
+                        _viewModel.MarkdownContent = "";
+                        EditorView.EditorText = "";
+                        TitleText.Text = "새 문서";
+                    }
+                    RefreshFileList();
+                    MergeView.RemoveHistoryByFile(file.Name);
+                }
+            }
+        }
     }
 }
