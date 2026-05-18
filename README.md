@@ -39,6 +39,14 @@
 | 아키텍처 | MVVM 패턴 |
 | 데이터 저장 | System.Text.Json |
 
+### 사용한 라이브러리
+ 
+| 라이브러리 | 용도 |
+|---|---|
+| **AvalonEdit** | 마크다운 입력창, 미리보기 코드블록 하이라이팅 |
+| **System.Text.Json** | `.brainstorm`, `.brainstorm_layout` JSON 저장/불러오기 |
+| **System.Windows.Forms** | 폴더 선택 다이얼로그. WPF에 폴더 선택 창이 없어서 WinForms 것을 사용 |
+ 
 ---
 
 ## 4. MVVM 패턴
